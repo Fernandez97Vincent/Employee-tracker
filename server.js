@@ -39,7 +39,7 @@ function firstChoice() {
             "View Roles",
             "Add Employee",
             "Remove Employee",
-            "Update Employee Role",
+            //"Update Employee Role",
             "Add Role",
             "Stop"
         ]
@@ -67,10 +67,12 @@ function firstChoice() {
             case 'Remove Employee':
                 removeEmployee();
                 break;
-            
+            /*
             case 'Update Employee Role':
                 updateEmployee();
                 break;
+                */
+                
 
             case 'Add Role':
                 addRole();
@@ -148,13 +150,10 @@ function viewRoles() {
 }
 
 // create add employee function
+// async function to allow user to add new roles 
 const addEmployee = async () => {
     try {
         console.log('Employee Add');
-
-        let roles = await connection.query("SELECT * FROM role");
-
-        let managers = await connection.query("SELECT * FROM employee");
 
         let answer = await inquirer.prompt([
             {
@@ -182,6 +181,40 @@ const addEmployee = async () => {
         firstChoice();
     };
 }
+
+//create add role function
+const addRole = async () => {
+    try {
+        console.log("Adding new roles\n");
+
+        let answer = await inquirer.prompt([
+            {
+                name: 'title',
+                type: 'input',
+                message: 'Please enter a new role'
+            },
+
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'Please enter the salary of the new role'
+            },
+        ]);
+
+        let result = await connection.query("INSERT INTO role SET ?", {
+            title: answer.title,
+            salary: answer.salary,
+        })
+
+        console.log(`${answer.title} role added !\n`)
+        firstChoice();
+
+    } catch (err) {
+        console.log(err);
+        firstChoice();
+    };
+}
+
 
 
   
