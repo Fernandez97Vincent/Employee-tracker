@@ -3,11 +3,11 @@ const inquirer = require("inquirer");
 require("console.table");
 
 
+
 //mysql connection
 const connection = mysql.createConnection({
     host: 'localhost',
 
-    // Your port; if not 3306
     port: 3306,
 
 
@@ -17,17 +17,25 @@ const connection = mysql.createConnection({
     password: 'hotpocket',
     database: 'employees_db'
 });
+
+connection.connect(function (err) {
+    if (err) throw err;
+    console.log("connected as id " + connection.threadId);
+    firstChoice();
+});
+
 // checking to see if server.js works
 //console.log(firstChoice)
 // ask user what they would like to do
+
 function firstChoice() {
     inquirer.prompt({
         type: 'list',
-        name: 'task',
+        name: 'action',
         message: 'Please choose an option',
         choices: [
             "View Employees",
-            "View Employees by Department",
+            "View Departments",
             "Add Employee",
             "Remove Employee",
             "Update Employee Role",
@@ -42,7 +50,7 @@ function firstChoice() {
                 viewEmployees();
                 break;
             
-            case 'View Employee by Department':
+            case 'View Departments':
                 viewDepartment();
                 break;
 
@@ -67,5 +75,46 @@ function firstChoice() {
                 break;
 
         }
-    })
+    });
 }
+
+//create a view employee function
+function viewEmployees() {
+    console.log("Viewing employees\n");
+  
+    try {
+        // select from employee table
+    let query = 'SELECT * FROM employee';
+    connection.query(query, function (err, res) {
+        if (err) throw err;
+        let employeeArr = [];
+        res.forEach(employee => employeeArr.push(employee));
+        console.table(employeeArr);
+        firstChoice();
+    });
+} catch (err) {
+    console.log(err);
+    firstChoice();
+    };
+}
+
+function viewDepartment() {
+    console.log("Viewing Departments\n")
+
+    try {
+        let query = 'SELECT * FROM department';
+        connection.query(query, function (err, res) {
+            if (err) throw err;
+            let departmentArr = [];
+            res.forEach(department => departmentArr.push(department));
+            console.table(departmentArr);
+            firstChoice();
+        });
+    } catch (err) {
+        console.log(err);
+        firstChoice();
+    };
+}
+
+  
+  
