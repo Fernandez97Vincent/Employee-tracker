@@ -36,6 +36,7 @@ function firstChoice() {
         choices: [
             "View Employees",
             "View Departments",
+            "View Roles",
             "Add Employee",
             "Remove Employee",
             "Update Employee Role",
@@ -54,9 +55,14 @@ function firstChoice() {
                 viewDepartment();
                 break;
 
+            case 'View Roles':
+                viewRoles();
+                break;
+
             case 'Add Employee':
                 addEmployee();
                 break;
+
 
             case 'Remove Employee':
                 removeEmployee();
@@ -88,6 +94,7 @@ function viewEmployees() {
     connection.query(query, function (err, res) {
         if (err) throw err;
         let employeeArr = [];
+        // push the employee table within the array
         res.forEach(employee => employeeArr.push(employee));
         console.table(employeeArr);
         firstChoice();
@@ -102,10 +109,13 @@ function viewDepartment() {
     console.log("Viewing Departments\n")
 
     try {
+        // selecting department table
         let query = 'SELECT * FROM department';
         connection.query(query, function (err, res) {
             if (err) throw err;
+            // create an array with the departments
             let departmentArr = [];
+            // will push the list of departments array
             res.forEach(department => departmentArr.push(department));
             console.table(departmentArr);
             firstChoice();
@@ -115,6 +125,64 @@ function viewDepartment() {
         firstChoice();
     };
 }
+
+function viewRoles() {
+    console.log("Viewing Roles\n")
+
+    try {
+        // selecting department table
+        let query = 'SELECT * FROM role';
+        connection.query(query, function (err, res) {
+            if (err) throw err;
+            // create an array with the departments
+            let roleArr = [];
+            // will push the list of departments array
+            res.forEach(role => roleArr.push(role));
+            console.table(roleArr);
+            firstChoice();
+        });
+    } catch (err) {
+        console.log(err);
+        firstChoice();
+    };
+}
+
+// create add employee function
+const addEmployee = async () => {
+    try {
+        console.log('Employee Add');
+
+        let roles = await connection.query("SELECT * FROM role");
+
+        let managers = await connection.query("SELECT * FROM employee");
+
+        let answer = await inquirer.prompt([
+            {
+                name: 'firstName',
+                type: 'input',
+                message: 'What is the first name of this Employee?'
+            },
+            {
+                name: 'lastName',
+                type: 'input',
+                message: 'What is the last name of this Employee?'
+            }
+        ])
+
+        let result = await connection.query("INSERT INTO employee SET ?", {
+            first_name: answer.firstName,
+            last_name: answer.lastName,
+        });
+
+        console.log(`${answer.firstName} ${answer.lastName} added successfully.\n`);
+        firstChoice();
+
+    } catch (err) {
+        console.log(err);
+        firstChoice();
+    };
+}
+
 
   
   
